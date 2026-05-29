@@ -1,0 +1,250 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简排笔记 | 小红书一键排版工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'xhs-pink': '#FFE6EE',
+                        'xhs-pink-dark': '#FFB6C1',
+                        'xhs-pink-light': '#FFF5F8',
+                        'xhs-red': '#FF6B8A'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-xhs-pink-light to-xhs-pink min-h-screen">
+    <header class="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="text-center relative">
+                <h1 class="text-2xl md:text-3xl font-bold text-xhs-red mb-2">
+                    ✨ 简排笔记 | 小红书一键排版工具
+                </h1>
+                <p class="text-gray-500 text-sm md:text-base">
+                    一键美化你的小红书笔记，让内容更吸引人
+                </p>
+                <button id="resetVipBtn"
+                        class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-xhs-red transition-all px-3 py-1 rounded-lg hover:bg-xhs-pink hidden">
+                    🔄 重置
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        <div class="hidden md:grid grid-cols-12 gap-6">
+            <aside class="col-span-3">
+                <div class="bg-white rounded-2xl shadow-lg p-5">
+                    <h2 class="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">📝 模板库</h2>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <button class="template-category-btn active px-3 py-1.5 text-sm rounded-full bg-xhs-red text-white" data-category="all">全部</button>
+                        <button class="template-category-btn px-3 py-1.5 text-sm rounded-full bg-xhs-pink text-gray-600" data-category="recommend">种草</button>
+                        <button class="template-category-btn px-3 py-1.5 text-sm rounded-full bg-xhs-pink text-gray-600" data-category="review">测评</button>
+                        <button class="template-category-btn px-3 py-1.5 text-sm rounded-full bg-xhs-pink text-gray-600" data-category="tips">干货</button>
+                        <button class="template-category-btn px-3 py-1.5 text-sm rounded-full bg-xhs-pink text-gray-600" data-category="daily">日常</button>
+                    </div>
+                    <div id="templateList" class="space-y-3 max-h-[500px] overflow-y-auto pr-2"></div>
+                </div>
+            </aside>
+            <section class="col-span-4">
+                <div class="bg-white rounded-2xl shadow-lg p-5">
+                    <h2 class="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">✏️ 输入区</h2>
+                    <textarea id="inputText"
+                        class="w-full h-80 p-4 border-2 border-xhs-pink-dark rounded-xl resize-none focus:outline-none focus:border-xhs-red focus:ring-2 focus:ring-xhs-pink transition-all text-gray-700 leading-relaxed"
+                        placeholder="在这里粘贴或输入你的文案..."></textarea>
+                    <div class="mt-4 space-y-3">
+                        <div class="flex gap-3">
+                            <button id="beautifyBtn"
+                                class="flex-1 bg-gradient-to-r from-xhs-red to-pink-400 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg hover:scale-[1.02] transition-all">
+                                ✨ 一键美化
+                            </button>
+                            <button id="copyBtn"
+                                class="flex-1 bg-xhs-pink text-xhs-red py-3 px-6 rounded-xl font-semibold hover:bg-xhs-pink-dark transition-all">
+                                📋 复制内容
+                            </button>
+                        </div>
+                        <div id="usageInfo" class="text-center py-3 px-4 bg-xhs-pink-light rounded-xl">
+                            <span class="text-gray-600">今日剩余：</span>
+                            <span id="remainingCount" class="text-xhs-red font-bold text-lg">3</span>
+                            <span class="text-gray-600">/ 3 次</span>
+                        </div>
+                        <button id="unlockBtn"
+                            class="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transition-all text-sm">
+                            🌟 解锁无限使用
+                        </button>
+                    </div>
+                </div>
+            </section>
+            <aside class="col-span-5">
+                <div class="bg-white rounded-2xl shadow-lg p-5">
+                    <h2 class="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">👀 实时预览</h2>
+                    <div id="previewContent"
+                        class="w-full h-80 p-4 bg-xhs-pink-light rounded-xl overflow-y-auto leading-relaxed text-gray-700 whitespace-pre-wrap">
+                        <p class="text-gray-400 text-center py-20">排版效果将在这里显示...</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <div class="md:hidden space-y-4">
+            <div class="bg-white rounded-2xl shadow-lg p-4">
+                <h2 class="text-lg font-bold text-gray-700 mb-3">📝 模板库</h2>
+                <div class="flex flex-wrap gap-2 mb-3">
+                    <button class="template-category-btn-mobile active px-3 py-1.5 text-sm rounded-full bg-xhs-red text-white" data-category="all">全部</button>
+                    <button class="template-category-btn-mobile px-3 py-1.5 text-sm rounded-full bg-xhs-pink text-gray-600" data-category="recommend">种草</button>
+                    <button class="template-category-btn-mobile px-3 py-1.5 text-sm rounded-full bg-xhs-pink text-gray-600" data-category="review">测评</button>
+                    <button class="template-category-btn-mobile px-3 py-1.5 text-sm rounded-full bg-xhs-pink text-gray-600" data-category="tips">干货</button>
+                    <button class="template-category-btn-mobile px-3 py-1.5 text-sm rounded-full bg-xhs-pink text-gray-600" data-category="daily">日常</button>
+                </div>
+                <div id="templateListMobile" class="grid grid-cols-2 gap-2"></div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg p-4">
+                <h2 class="text-lg font-bold text-gray-700 mb-3">✏️ 输入区</h2>
+                <textarea id="inputTextMobile"
+                    class="w-full h-48 p-3 border-2 border-xhs-pink-dark rounded-xl resize-none focus:outline-none focus:border-xhs-red text-gray-700 leading-relaxed text-sm"
+                    placeholder="粘贴或输入文案..."></textarea>
+                <div class="mt-3 space-y-2">
+                    <div class="flex gap-2">
+                        <button id="beautifyBtnMobile"
+                            class="flex-1 bg-gradient-to-r from-xhs-red to-pink-400 text-white py-2.5 px-4 rounded-xl font-semibold text-sm">
+                            ✨ 一键美化
+                        </button>
+                        <button id="copyBtnMobile"
+                            class="flex-1 bg-xhs-pink text-xhs-red py-2.5 px-4 rounded-xl font-semibold text-sm">
+                            📋 复制
+                        </button>
+                    </div>
+                    <div id="usageInfoMobile" class="text-center py-2 px-3 bg-xhs-pink-light rounded-xl text-sm">
+                        今日剩余：<span id="remainingCountMobile" class="text-xhs-red font-bold">3</span> / 3 次
+                    </div>
+                    <button id="unlockBtnMobile"
+                        class="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-white py-2.5 px-4 rounded-xl font-semibold text-sm">
+                        🌟 解锁无限使用
+                    </button>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg p-4">
+                <h2 class="text-lg font-bold text-gray-700 mb-3">👀 预览</h2>
+                <div id="previewContentMobile"
+                    class="w-full h-48 p-3 bg-xhs-pink-light rounded-xl overflow-y-auto leading-relaxed text-gray-700 text-sm whitespace-pre-wrap">
+                    <p class="text-gray-400 text-center py-16">排版效果将在这里显示...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="payModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-4 relative animate-scale-in">
+            <button id="closeModalBtn"
+                class="absolute top-3 right-3 w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-all">
+                ✕
+            </button>
+            <div class="text-center">
+                <h3 class="text-xl font-bold text-xhs-red mb-1">🌟 解锁无限使用</h3>
+                <p class="text-gray-500 mb-4 text-sm">突破每日3次限制，畅享无限排版</p>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div id="monthCard"
+                        class="border-2 border-gray-200 rounded-xl p-3 cursor-pointer hover:shadow-lg transition-all select-plan">
+                        <div class="text-xs text-gray-500 mb-1">月卡</div>
+                        <div class="text-2xl font-bold text-xhs-red">¥11.88</div>
+                        <div class="text-xs text-gray-400">/月</div>
+                    </div>
+                    <div id="lifetimeCard"
+                        class="border-2 border-xhs-red rounded-xl p-3 bg-xhs-pink-light relative cursor-pointer hover:shadow-lg transition-all select-plan">
+                        <div class="absolute -top-2 left-1/2 -translate-x-1/2 bg-xhs-red text-white text-xs px-2 py-0.5 rounded-full">
+                            推荐
+                        </div>
+                        <div class="text-xs text-gray-500 mb-1">终身卡</div>
+                        <div class="text-2xl font-bold text-xhs-red">¥18.88</div>
+                        <div class="text-xs text-gray-400">永久有效</div>
+                    </div>
+                </div>
+                <div id="selectedPlanInfo" class="mb-3 bg-xhs-pink-light rounded-lg p-2 border border-xhs-pink-dark">
+                    <p class="text-xs text-gray-600">您已选择：</p>
+                    <p id="selectedPlanName" class="text-lg font-bold text-xhs-red">终身卡</p>
+                    <p id="selectedPlanPrice" class="text-xl font-bold text-xhs-red">￥18.88</p>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-2 mb-3 text-left">
+                    <p class="text-blue-700 text-xs">
+                        <strong>📌</strong>支付时请<strong>备注手机号</strong>，便于验证！
+                    </p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 inline-block mb-3">
+                    <img src="pay.jpg?t=2025"
+                        id="paymentQRCode"
+                        alt="微信收款码"
+                        class="w-36 h-36 rounded-lg border-2 border-xhs-pink-dark"
+                        onerror="this.src='https://via.placeholder.com/144x144/FFE6EE/FF6B8A?text=请联系客服'">
+                    <p class="text-xs text-gray-400 mt-1">👆 长按识别二维码支付</p>
+                </div>
+                <div class="mb-3">
+                    <input type="tel" 
+                        id="verifyPhone" 
+                        placeholder="请输入支付时备注的手机号"
+                        class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-xhs-red focus:outline-none text-center text-sm">
+                </div>
+                <button id="verifyPaymentBtn"
+                    class="w-full bg-gradient-to-r from-green-400 to-emerald-500 text-white py-2 px-4 rounded-lg font-semibold hover:shadow-lg hover:scale-[1.02] transition-all mb-2 text-sm">
+                    ✅ 验证并解锁会员
+                </button>
+                <div>
+                    <button id="adminBtn" class="text-xs text-blue-500 hover:text-blue-700">
+                        🛠️ 管理员入口
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="adminModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 relative animate-scale-in">
+            <button id="closeAdminBtn"
+                class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-all">
+                ✕
+            </button>
+            <div class="text-center">
+                <h3 class="text-2xl font-bold text-xhs-red mb-6">🛠️ 会员管理后台</h3>
+                <div class="mb-4">
+                    <label class="text-sm text-gray-600 block mb-2 text-left">添加会员手机号：</label>
+                    <input type="tel" 
+                        id="addMemberPhone" 
+                        placeholder="请输入手机号"
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-xhs-red focus:outline-none">
+                </div>
+                <div class="mb-4">
+                    <label class="text-sm text-gray-600 block mb-2 text-left">会员类型：</label>
+                    <select id="memberType" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-xhs-red focus:outline-none">
+                        <option value="month">月卡会员</option>
+                        <option value="lifetime">终身卡会员</option>
+                    </select>
+                </div>
+                <button id="addMemberBtn"
+                    class="w-full bg-gradient-to-r from-xhs-red to-pink-400 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transition-all mb-4">
+                    ➕ 添加会员
+                </button>
+                <div class="mb-4">
+                    <label class="text-sm text-gray-600 block mb-2 text-left">当前会员列表：</label>
+                    <div id="memberList" class="bg-gray-50 rounded-xl p-4 max-h-64 overflow-y-auto text-left text-sm">
+                        <p class="text-gray-400">暂无会员</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast"
+        class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-lg opacity-0 pointer-events-none transition-all duration-300 z-50">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
